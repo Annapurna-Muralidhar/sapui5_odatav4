@@ -122,9 +122,20 @@ sap.ui.define([
 		 */
 		onResetChanges : function () {
 			this.byId("peopleList").getBinding("items").resetChanges();
-			// If there were technical errors, cancelling changes resets them.
-			this._bTechnicalErrors = false;
-			this._setUIChanges(false);
+			this._setUIChanges();
+		},
+
+		onResetDataSource : function () {
+			var oModel = this.getView().getModel(),
+				oOperation = oModel.bindContext("/ResetDataSource(...)");
+
+			oOperation.execute().then(function () {
+					oModel.refresh();
+					MessageToast.show(this._getText("sourceResetSuccessMessage"));
+				}.bind(this), function (oError) {
+					MessageBox.error(oError.message);
+				}
+			);
 		},
 
 		/**
