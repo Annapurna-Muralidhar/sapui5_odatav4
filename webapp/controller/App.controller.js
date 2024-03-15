@@ -273,16 +273,31 @@ sap.ui.define([
 			oModel.setProperty("/busy", bIsBusy);
 		},
 
-		 /**
+		/**
          * Toggles the visibility of the detail area
          *
          * @param {object} [oUserContext] - the current user context
          */
-		 _setDetailArea : function (oUserContext) {
+        _setDetailArea : function (oUserContext) {         
             var oDetailArea = this.byId("detailArea"),
                 oLayout = this.byId("defaultLayout"),
+                oOldContext,
                 oSearchField = this.byId("searchField");
  
+            if (!oDetailArea) {
+                return; // do nothing when running within view destruction
+            }
+ 
+            oOldContext = oDetailArea.getBindingContext();
+            if (oOldContext) {
+                oOldContext.setKeepAlive(false);
+            }
+            if (oUserContext) {
+                oUserContext.setKeepAlive(true,
+                    // hide details if kept entity was refreshed but does not exists any more
+                    this._setDetailArea.bind(this));
+
+            }
             oDetailArea.setBindingContext(oUserContext || null);
             // resize view
             oDetailArea.setVisible(!!oUserContext);
